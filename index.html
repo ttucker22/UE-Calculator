@@ -880,109 +880,112 @@ const SHOULDERInternalExternalRotationData = [
     { internalRotation: '<-90', ueInternalRotation: 12, externalRotation: '>90', ueExternalRotation: 0, ankylosis: '<-90', ueAnkylosis: 12 }
 ];
 
-    function showCalculators() {
-        optionsContainer.style.display = 'none';
-        calculatorsContainer.style.display = 'block';
-        calculatorsList.innerHTML = '';
-        
-        for (const [cardValue, options] of Object.entries(selectedOptions)) {
-            options.forEach(option => {
-                const calculatorCard = document.createElement('div');
-                calculatorCard.classList.add('calculator-card');
-                if (cardValue === 'shoulder' && option === 'ROM') {
-                    calculatorCard.innerHTML = `
-                        <h3>Shoulder - ROM</h3>
-                        <table class="rom-table">
-                            <tr>
-                                <th></th>
-                                <th>Flexion</th>
-                                <th>Extension</th>
-                                <th>Ankylosis</th>
-                                <th>Imp%</th>
-                            </tr>
-                            <tr>
-                                <td>Angle°</td>
-                                <td><input type="number" id="shoulder-flexion" min="0" max="180"></td>
-                                <td><input type="number" id="shoulder-extension" min="0" max="60"></td>
-                                <td><input type="number" id="shoulder-ankylosis-fe" min="0" max="180"></td>
-                                <td rowspan="2" id="shoulder-fe-imp">0</td>
-                            </tr>
-                            <tr>
-                                <td>Imp%</td>
-                                <td id="shoulder-flexion-imp">0</td>
-                                <td id="shoulder-extension-imp">0</td>
-                                <td id="shoulder-ankylosis-fe-imp">0</td>
-                            </tr>
-                            <tr>
-                                <th></th>
-                                <th>Abduction</th>
-                                <th>Adduction</th>
-                                <th>Ankylosis</th>
-                                <th>Imp%</th>
-                            </tr>
-                            <tr>
-                                <td>Angle°</td>
-                                <td><input type="number" id="shoulder-abduction" min="0" max="180"></td>
-                                <td><input type="number" id="shoulder-adduction" min="0" max="50"></td>
-                                <td><input type="number" id="shoulder-ankylosis-aa" min="0" max="180"></td>
-                                <td rowspan="2" id="shoulder-aa-imp">0</td>
-                            </tr>
-                            <tr>
-                                <td>Imp%</td>
-                                <td id="shoulder-abduction-imp">0</td>
-                                <td id="shoulder-adduction-imp">0</td>
-                                <td id="shoulder-ankylosis-aa-imp">0</td>
-                            </tr>
-                            <tr>
-                                <th></th>
-                                <th>Internal Rotation</th>
-                                <th>External Rotation</th>
-                                <th>Ankylosis</th>
-                                <th>Imp%</th>
-                            </tr>
-                            <tr>
-                                <td>Angle°</td>
-                                <td><input type="number" id="shoulder-internal-rotation" min="0" max="90"></td>
-                                <td><input type="number" id="shoulder-external-rotation" min="0" max="90"></td>
-                                <td><input type="number" id="shoulder-ankylosis-ie" min="0" max="90"></td>
-                                <td rowspan="2" id="shoulder-ie-imp">0</td>
-                            </tr>
-                            <tr>
-                                <td>Imp%</td>
-                                <td id="shoulder-internal-rotation-imp">0</td>
-                                <td id="shoulder-external-rotation-imp">0</td>
-                                <td id="shoulder-ankylosis-ie-imp">0</td>
-                            </tr>
-                        </table>
-                        <p>Total: <span id="shoulder-rom-total">0</span> UE = <span id="shoulder-rom-wpi">0</span> WPI</p>
-                    `;
-                } else {
-                    calculatorCard.innerHTML = `
-                        <h3>${cardValue.charAt(0).toUpperCase() + cardValue.slice(1)} - ${option}</h3>
-                        <div class="input-group">
-                            <label for="${cardValue}-${option}-impairment">Impairment (%):</label>
-                            <input type="number" id="${cardValue}-${option}-impairment" min="0" max="100" step="0.1">
-                        </div>
-                        <div class="input-group">
-                            <label for="${cardValue}-${option}-comments">Comments:</label>
-                            <input type="text" id="${cardValue}-${option}-comments">
-                        </div>
-                    `;
-                }
-                calculatorsList.appendChild(calculatorCard);
-            });
-        }
-
-        // Add event listeners for shoulder ROM inputs
-        if (selectedOptions.shoulder && selectedOptions.shoulder.includes('ROM')) {
-            const shoulderInputs = ['flexion', 'extension', 'abduction', 'adduction', 'internal-rotation', 'external-rotation', 'ankylosis-fe', 'ankylosis-aa', 'ankylosis-ie'];
-            shoulderInputs.forEach(input => {
-                document.getElementById(`shoulder-${input}`).addEventListener('input', calculateShoulderROM);
-            });
-        }
+function showCalculators() {
+    optionsContainer.style.display = 'none';
+    calculatorsContainer.style.display = 'block';
+    calculatorsList.innerHTML = '';
+    
+    for (const [cardValue, options] of Object.entries(selectedOptions)) {
+        options.forEach(option => {
+            const calculatorCard = document.createElement('div');
+            calculatorCard.classList.add('calculator-card');
+            if (cardValue === 'shoulder' && option === 'ROM') {
+                calculatorCard.innerHTML = `
+                    <h3>Shoulder - ROM</h3>
+                    <table class="rom-table">
+                        <tr>
+                            <th></th>
+                            <th>Flexion</th>
+                            <th>Extension</th>
+                            <th>Ankylosis</th>
+                            <th>Imp%</th>
+                        </tr>
+                        <tr>
+                            <td>Angle°</td>
+                            <td><input type="number" id="shoulder-flexion" min="0" max="180"></td>
+                            <td><input type="number" id="shoulder-extension" min="0" max="60"></td>
+                            <td><input type="number" id="shoulder-ankylosis-fe" min="0" max="180"></td>
+                            <td rowspan="2" id="shoulder-fe-imp">0</td>
+                        </tr>
+                        <tr>
+                            <td>Imp%</td>
+                            <td id="shoulder-flexion-imp">0</td>
+                            <td id="shoulder-extension-imp">0</td>
+                            <td id="shoulder-ankylosis-fe-imp">0</td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>Abduction</th>
+                            <th>Adduction</th>
+                            <th>Ankylosis</th>
+                            <th>Imp%</th>
+                        </tr>
+                        <tr>
+                            <td>Angle°</td>
+                            <td><input type="number" id="shoulder-abduction" min="0" max="180"></td>
+                            <td><input type="number" id="shoulder-adduction" min="0" max="50"></td>
+                            <td><input type="number" id="shoulder-ankylosis-aa" min="0" max="180"></td>
+                            <td rowspan="2" id="shoulder-aa-imp">0</td>
+                        </tr>
+                        <tr>
+                            <td>Imp%</td>
+                            <td id="shoulder-abduction-imp">0</td>
+                            <td id="shoulder-adduction-imp">0</td>
+                            <td id="shoulder-ankylosis-aa-imp">0</td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>Internal Rotation</th>
+                            <th>External Rotation</th>
+                            <th>Ankylosis</th>
+                            <th>Imp%</th>
+                        </tr>
+                        <tr>
+                            <td>Angle°</td>
+                            <td><input type="number" id="shoulder-internal-rotation" min="0" max="90"></td>
+                            <td><input type="number" id="shoulder-external-rotation" min="0" max="90"></td>
+                            <td><input type="number" id="shoulder-ankylosis-ie" min="0" max="90"></td>
+                            <td rowspan="2" id="shoulder-ie-imp">0</td>
+                        </tr>
+                        <tr>
+                            <td>Imp%</td>
+                            <td id="shoulder-internal-rotation-imp">0</td>
+                            <td id="shoulder-external-rotation-imp">0</td>
+                            <td id="shoulder-ankylosis-ie-imp">0</td>
+                        </tr>
+                    </table>
+                    <p>Total: <span id="shoulder-rom-total">0</span> UE = <span id="shoulder-rom-wpi">0</span> WPI</p>
+                `;
+            } else {
+                calculatorCard.innerHTML = `
+                    <h3>${cardValue.charAt(0).toUpperCase() + cardValue.slice(1)} - ${option}</h3>
+                    <div class="input-group">
+                        <label for="${cardValue}-${option}-impairment">Impairment (%):</label>
+                        <input type="number" id="${cardValue}-${option}-impairment" min="0" max="100" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label for="${cardValue}-${option}-comments">Comments:</label>
+                        <input type="text" id="${cardValue}-${option}-comments">
+                    </div>
+                `;
+            }
+            calculatorsList.appendChild(calculatorCard);
+        });
     }
 
-// Function to find impairment based on angle from a data array
+    // Add event listeners for shoulder ROM inputs
+    if (selectedOptions.shoulder && selectedOptions.shoulder.includes('ROM')) {
+        const shoulderInputs = ['flexion', 'extension', 'abduction', 'adduction', 'internal-rotation', 'external-rotation', 'ankylosis-fe', 'ankylosis-aa', 'ankylosis-ie'];
+        shoulderInputs.forEach(input => {
+            document.getElementById(`shoulder-${input}`).addEventListener('input', calculateShoulderROM);
+        });
+    }
+}
+
+function calculateShoulderROM() {
+    updateShoulderImpairment();
+}
+
 function findImpairment(angle, dataArray, angleField) {
     let impairment = 0; // Default to 0 impairment
     for (let i = 0; i < dataArray.length; i++) {
@@ -1004,68 +1007,55 @@ function findImpairment(angle, dataArray, angleField) {
     return impairment;
 }
 
-// Function to update shoulder impairment
 function updateShoulderImpairment() {
     // Get angle values
-    let flexionAngle = parseInt(document.getElementById('shoulder-flexion-angle').value);
-    let extensionAngle = parseInt(document.getElementById('shoulder-extension-angle').value);
-    let flexextAnkylosisAngle = parseInt(document.getElementById('shoulder-flexext-ankylosis-angle').value);
-    let abductionAngle = parseInt(document.getElementById('shoulder-abduction-angle').value);
-    let adductionAngle = parseInt(document.getElementById('shoulder-adduction-angle').value);
-    let abdaddAnkylosisAngle = parseInt(document.getElementById('shoulder-abdadd-ankylosis-angle').value);
-    let intRotAngle = parseInt(document.getElementById('shoulder-introt-angle').value);
-    let extRotAngle = parseInt(document.getElementById('shoulder-extrot-angle').value);
-    let rotationAnkylosisAngle = parseInt(document.getElementById('shoulder-rotation-ankylosis-angle').value);
+    let flexionAngle = parseInt(document.getElementById('shoulder-flexion').value) || 0;
+    let extensionAngle = parseInt(document.getElementById('shoulder-extension').value) || 0;
+    let ankylosisFEAngle = parseInt(document.getElementById('shoulder-ankylosis-fe').value) || 0;
+    let abductionAngle = parseInt(document.getElementById('shoulder-abduction').value) || 0;
+    let adductionAngle = parseInt(document.getElementById('shoulder-adduction').value) || 0;
+    let ankylosisAAAngle = parseInt(document.getElementById('shoulder-ankylosis-aa').value) || 0;
+    let internalRotationAngle = parseInt(document.getElementById('shoulder-internal-rotation').value) || 0;
+    let externalRotationAngle = parseInt(document.getElementById('shoulder-external-rotation').value) || 0;
+    let ankylosisIEAngle = parseInt(document.getElementById('shoulder-ankylosis-ie').value) || 0;
 
     // Find impairments from data arrays
-    let flexionImp = isNaN(flexionAngle) ? 0 : findImpairment(flexionAngle, SHOULDERFlexionExtensionData, 'flexion');
-    let extensionImp = isNaN(extensionAngle) ? 0 : findImpairment(extensionAngle, SHOULDERFlexionExtensionData, 'extension');
-    let flexextAnkylosisImp = isNaN(flexextAnkylosisAngle) ? 0 : findImpairment(flexextAnkylosisAngle, SHOULDERFlexionExtensionData, 'ankylosis');
-    let abductionImp = isNaN(abductionAngle) ? 0 : findImpairment(abductionAngle, SHOULDERAbductionAdductionData, 'abduction');
-    let adductionImp = isNaN(adductionAngle) ? 0 : findImpairment(adductionAngle, SHOULDERAbductionAdductionData, 'adduction');
-    let abdaddAnkylosisImp = isNaN(abdaddAnkylosisAngle) ? 0 : findImpairment(abdaddAnkylosisAngle, SHOULDERAbductionAdductionData, 'ankylosis');
-    let intRotImp = isNaN(intRotAngle) ? 0 : findImpairment(intRotAngle, SHOULDERInternalExternalRotationData, 'internalRotation');
-    let extRotImp = isNaN(extRotAngle) ? 0 : findImpairment(extRotAngle, SHOULDERInternalExternalRotationData, 'externalRotation');
-    let rotationAnkylosisImp = isNaN(rotationAnkylosisAngle) ? 0 : findImpairment(rotationAnkylosisAngle, SHOULDERInternalExternalRotationData, 'ankylosis');
+    let flexionImp = findImpairment(flexionAngle, SHOULDERFlexionExtensionData, 'flexion');
+    let extensionImp = findImpairment(extensionAngle, SHOULDERFlexionExtensionData, 'extension');
+    let ankylosisFEImp = findImpairment(ankylosisFEAngle, SHOULDERFlexionExtensionData, 'ankylosis');
+    let abductionImp = findImpairment(abductionAngle, SHOULDERAbductionAdductionData, 'abduction');
+    let adductionImp = findImpairment(adductionAngle, SHOULDERAbductionAdductionData, 'adduction');
+    let ankylosisAAImp = findImpairment(ankylosisAAAngle, SHOULDERAbductionAdductionData, 'ankylosis');
+    let internalRotationImp = findImpairment(internalRotationAngle, SHOULDERInternalExternalRotationData, 'internalRotation');
+    let externalRotationImp = findImpairment(externalRotationAngle, SHOULDERInternalExternalRotationData, 'externalRotation');
+    let ankylosisIEImp = findImpairment(ankylosisIEAngle, SHOULDERInternalExternalRotationData, 'ankylosis');
 
     // Update impairment fields in the HTML
     document.getElementById('shoulder-flexion-imp').textContent = flexionImp;
     document.getElementById('shoulder-extension-imp').textContent = extensionImp;
-    document.getElementById('shoulder-flexext-ankylosis-imp').textContent = flexextAnkylosisImp;
+    document.getElementById('shoulder-ankylosis-fe-imp').textContent = ankylosisFEImp;
     document.getElementById('shoulder-abduction-imp').textContent = abductionImp;
     document.getElementById('shoulder-adduction-imp').textContent = adductionImp;
-    document.getElementById('shoulder-abdadd-ankylosis-imp').textContent = abdaddAnkylosisImp;
-    document.getElementById('shoulder-introt-imp').textContent = intRotImp;
-    document.getElementById('shoulder-extrot-imp').textContent = extRotImp;
-    document.getElementById('shoulder-rotation-ankylosis-imp').textContent = rotationAnkylosisImp;
+    document.getElementById('shoulder-ankylosis-aa-imp').textContent = ankylosisAAImp;
+    document.getElementById('shoulder-internal-rotation-imp').textContent = internalRotationImp;
+    document.getElementById('shoulder-external-rotation-imp').textContent = externalRotationImp;
+    document.getElementById('shoulder-ankylosis-ie-imp').textContent = ankylosisIEImp;
 
     // Calculate and update subtotals
-    let flexextImp = Math.max(flexionImp + extensionImp, flexextAnkylosisImp);
-    let abdaddImp = Math.max(abductionImp + adductionImp, abdaddAnkylosisImp);
-    let rotationImp = Math.max(intRotImp + extRotImp, rotationAnkylosisImp);
+    let feImp = Math.max(flexionImp + extensionImp, ankylosisFEImp);
+    let aaImp = Math.max(abductionImp + adductionImp, ankylosisAAImp);
+    let ieImp = Math.max(internalRotationImp + externalRotationImp, ankylosisIEImp);
 
-    document.getElementById('shoulder-flexext-imp').textContent = flexextImp;
-    document.getElementById('shoulder-abdadd-imp').textContent = abdaddImp;
-    document.getElementById('shoulder-rotation-imp').textContent = rotationImp;
+    document.getElementById('shoulder-fe-imp').textContent = feImp;
+    document.getElementById('shoulder-aa-imp').textContent = aaImp;
+    document.getElementById('shoulder-ie-imp').textContent = ieImp;
 
     // Calculate total shoulder impairment
-    let impairments = [
-        { value: flexextImp, name: 'flexext' },
-        { value: abdaddImp, name: 'abdadd' },
-        { value: rotationImp, name: 'rotation' }
-    ].filter(imp => imp.value > 0);
-
-    let totalImp = impairments.reduce((sum, imp) => sum + imp.value, 0);
+    let totalImp = feImp + aaImp + ieImp;
     let wpi = Math.round(totalImp * 0.6);
 
-    // Display total with addition when two or more impairments are non-zero
-    let totalText = '';
-    if (impairments.length >= 2) {
-        totalText = impairments.map(imp => imp.value).join(' + ') + ' = ' + totalImp + ' UE = ' + wpi + ' WPI';
-    } else {
-        totalText = totalImp + ' UE = ' + wpi + ' WPI';
-    }
-    document.getElementById('shoulder-total-imp').textContent = totalText;
+    document.getElementById('shoulder-rom-total').textContent = totalImp;
+    document.getElementById('shoulder-rom-wpi').textContent = wpi;
 }
 
 // Event listeners for all shoulder input fields
@@ -1085,7 +1075,8 @@ document.getElementById('clearAllButton').addEventListener('click', () => {
         span.textContent = '0';
     });
 
-    document.getElementById('shoulder-total-imp').textContent = '0 UE = 0 WPI';
+    document.getElementById('shoulder-rom-total').textContent = '0';
+    document.getElementById('shoulder-rom-wpi').textContent = '0';
 });
     
 });
