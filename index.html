@@ -1009,18 +1009,18 @@ function findImpairment(angle, dataArray, angleField) {
 
 function updateShoulderImpairment() {
     const movements = [
-        { name: 'flexion', dataArray: SHOULDERFlexionExtensionData, group: 'flexext' },
-        { name: 'extension', dataArray: SHOULDERFlexionExtensionData, group: 'flexext' },
-        { name: 'abduction', dataArray: SHOULDERAbductionAdductionData, group: 'abdadd' },
-        { name: 'adduction', dataArray: SHOULDERAbductionAdductionData, group: 'abdadd' },
-        { name: 'internal-rotation', dataArray: SHOULDERInternalExternalRotationData, field: 'internalRotation', group: 'rotation' },
-        { name: 'external-rotation', dataArray: SHOULDERInternalExternalRotationData, field: 'externalRotation', group: 'rotation' }
+        { name: 'flexion', dataArray: SHOULDERFlexionExtensionData, group: 'fe' },
+        { name: 'extension', dataArray: SHOULDERFlexionExtensionData, group: 'fe' },
+        { name: 'abduction', dataArray: SHOULDERAbductionAdductionData, group: 'aa' },
+        { name: 'adduction', dataArray: SHOULDERAbductionAdductionData, group: 'aa' },
+        { name: 'internal-rotation', dataArray: SHOULDERInternalExternalRotationData, field: 'internalRotation', group: 'ie' },
+        { name: 'external-rotation', dataArray: SHOULDERInternalExternalRotationData, field: 'externalRotation', group: 'ie' }
     ];
 
     let impairments = {
-        flexext: { normal: 0, ankylosis: 0 },
-        abdadd: { normal: 0, ankylosis: 0 },
-        rotation: { normal: 0, ankylosis: 0 }
+        fe: { normal: 0, ankylosis: 0 },
+        aa: { normal: 0, ankylosis: 0 },
+        ie: { normal: 0, ankylosis: 0 }
     };
 
     movements.forEach(movement => {
@@ -1038,18 +1038,18 @@ function updateShoulderImpairment() {
     });
 
     // Handle ankylosis
-    ['fe', 'aa', 'ie'].forEach(type => {
-        const ankylosisInput = document.getElementById(`shoulder-ankylosis-${type}`);
-        const ankylosisImpOutput = document.getElementById(`shoulder-ankylosis-${type}-imp`);
+    ['fe', 'aa', 'ie'].forEach(group => {
+        const ankylosisInput = document.getElementById(`shoulder-ankylosis-${group}`);
+        const ankylosisImpOutput = document.getElementById(`shoulder-ankylosis-${group}-imp`);
         const ankylosisAngle = ankylosisInput.value !== '' ? parseInt(ankylosisInput.value) : null;
 
         if (ankylosisAngle !== null) {
-            const dataArray = type === 'fe' ? SHOULDERFlexionExtensionData :
-                              type === 'aa' ? SHOULDERAbductionAdductionData :
+            const dataArray = group === 'fe' ? SHOULDERFlexionExtensionData :
+                              group === 'aa' ? SHOULDERAbductionAdductionData :
                               SHOULDERInternalExternalRotationData;
             const imp = findImpairment(ankylosisAngle, dataArray, 'ankylosis');
             ankylosisImpOutput.textContent = imp;
-            impairments[type === 'fe' ? 'flexext' : type === 'aa' ? 'abdadd' : 'rotation'].ankylosis = imp;
+            impairments[group].ankylosis = imp;
         } else {
             ankylosisImpOutput.textContent = '';
         }
@@ -1057,9 +1057,9 @@ function updateShoulderImpairment() {
 
     // Calculate and update subtotals
     let totalImp = 0;
-    ['flexext', 'abdadd', 'rotation'].forEach(type => {
-        const subtotal = Math.max(impairments[type].normal, impairments[type].ankylosis);
-        document.getElementById(`shoulder-${type === 'flexext' ? 'fe' : type}-imp`).textContent = subtotal;
+    ['fe', 'aa', 'ie'].forEach(group => {
+        const subtotal = Math.max(impairments[group].normal, impairments[group].ankylosis);
+        document.getElementById(`shoulder-${group}-imp`).textContent = subtotal;
         totalImp += subtotal;
     });
 
@@ -1068,8 +1068,12 @@ function updateShoulderImpairment() {
 
     document.getElementById('shoulder-rom-total').textContent = totalImp;
     document.getElementById('shoulder-rom-wpi').textContent = wpi;
-}
 
+    console.log('Impairments:', impairments);
+    console.log('Total Impairment:', totalImp);
+    console.log('WPI:', wpi);
+}
+    
 // Event listeners for all shoulder input fields
 const shoulderInputFields = document.querySelectorAll('input[type="number"][id^="shoulder"]');
 shoulderInputFields.forEach(input => {
