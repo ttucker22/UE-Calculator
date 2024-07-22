@@ -982,79 +982,110 @@ const SHOULDERInternalExternalRotationData = [
         }
     }
 
-// Function to find impairment based on angle
-function findImpairment(angle, dataArray, field) {
+// Function to find impairment based on angle from a data array
+function findImpairment(angle, dataArray, angleField) {
+    let impairment = 0; // Default to 0 impairment
     for (let i = 0; i < dataArray.length; i++) {
-        if (dataArray[i][field] == angle) {
-            return dataArray[i]['ue' + field.charAt(0).toUpperCase() + field.slice(1)];
+        let dataAngle = dataArray[i][angleField];
+        // Handle '<' and '>' cases
+        if (typeof dataAngle === 'string') {
+            if (dataAngle.startsWith('<') && angle <= parseInt(dataAngle.slice(1))) {
+                impairment = dataArray[i]['ue' + angleField.charAt(0).toUpperCase() + angleField.slice(1)]; 
+                break;
+            } else if (dataAngle.startsWith('>') && angle >= parseInt(dataAngle.slice(1))) {
+                impairment = dataArray[i]['ue' + angleField.charAt(0).toUpperCase() + angleField.slice(1)]; 
+                break;
+            }
+        } else if (angle === dataAngle) {
+            impairment = dataArray[i]['ue' + angleField.charAt(0).toUpperCase() + angleField.slice(1)]; 
+            break;
         }
     }
-    return 0; // Return 0 if no match found
-}
-
-function calculateShoulderROM(event) {
-    const changedInput = event.target;
-    const inputId = changedInput.id;
-    const angle = parseInt(changedInput.value) || 0;
-    
-    let impairment;
-    if (inputId.includes('flexion') || inputId.includes('extension') || inputId.includes('ankylosis-fe')) {
-        impairment = findImpairment(angle, SHOULDERFlexionExtensionData, inputId.split('-').pop());
-    } else if (inputId.includes('abduction') || inputId.includes('adduction') || inputId.includes('ankylosis-aa')) {
-        impairment = findImpairment(angle, SHOULDERAbductionAdductionData, inputId.split('-').pop());
-    } else if (inputId.includes('internal-rotation') || inputId.includes('external-rotation') || inputId.includes('ankylosis-ie')) {
-        impairment = findImpairment(angle, SHOULDERInternalExternalRotationData, inputId.split('-').pop().replace('-', ''));
-    }
-    
-    updateImpairmentDisplay(inputId + '-imp', impairment);
-    updateTotalImpairment();
-}
-
-function updateTotalImpairment() {
-    // Calculate subtotals
-    let feImp = Math.max(
-        (parseFloat(document.getElementById('shoulder-flexion-imp').textContent) || 0) +
-        (parseFloat(document.getElementById('shoulder-extension-imp').textContent) || 0),
-        parseFloat(document.getElementById('shoulder-ankylosis-fe-imp').textContent) || 0
-    );
-    let aaImp = Math.max(
-        (parseFloat(document.getElementById('shoulder-abduction-imp').textContent) || 0) +
-        (parseFloat(document.getElementById('shoulder-adduction-imp').textContent) || 0),
-        parseFloat(document.getElementById('shoulder-ankylosis-aa-imp').textContent) || 0
-    );
-    let ieImp = Math.max(
-        (parseFloat(document.getElementById('shoulder-internal-rotation-imp').textContent) || 0) +
-        (parseFloat(document.getElementById('shoulder-external-rotation-imp').textContent) || 0),
-        parseFloat(document.getElementById('shoulder-ankylosis-ie-imp').textContent) || 0
-    );
-
-    // Update subtotal displays
-    updateImpairmentDisplay('shoulder-fe-imp', feImp);
-    updateImpairmentDisplay('shoulder-aa-imp', aaImp);
-    updateImpairmentDisplay('shoulder-ie-imp', ieImp);
-
-    // Calculate and display total
-    let totalImp = feImp + aaImp + ieImp;
-    let wpi = Math.round(totalImp * 0.6);
-    document.getElementById('shoulder-rom-total').textContent = totalImp.toFixed(1);
-    document.getElementById('shoulder-rom-wpi').textContent = wpi;
-}
-
-function calculateImpairment(inputId, dataArray, field) {
-    let angle = parseInt(document.getElementById(inputId).value) || 0;
-    let impairment = findImpairment(angle, dataArray, field);
-    updateImpairmentDisplay(inputId + '-imp', impairment);
     return impairment;
 }
 
-function updateImpairmentDisplay(elementId, value) {
-    document.getElementById(elementId).textContent = value;
+// Function to update shoulder impairment
+function updateShoulderImpairment() {
+    // Get angle values
+    let flexionAngle = parseInt(document.getElementById('shoulder-flexion-angle').value);
+    let extensionAngle = parseInt(document.getElementById('shoulder-extension-angle').value);
+    let flexextAnkylosisAngle = parseInt(document.getElementById('shoulder-flexext-ankylosis-angle').value);
+    let abductionAngle = parseInt(document.getElementById('shoulder-abduction-angle').value);
+    let adductionAngle = parseInt(document.getElementById('shoulder-adduction-angle').value);
+    let abdaddAnkylosisAngle = parseInt(document.getElementById('shoulder-abdadd-ankylosis-angle').value);
+    let intRotAngle = parseInt(document.getElementById('shoulder-introt-angle').value);
+    let extRotAngle = parseInt(document.getElementById('shoulder-extrot-angle').value);
+    let rotationAnkylosisAngle = parseInt(document.getElementById('shoulder-rotation-ankylosis-angle').value);
+
+    // Find impairments from data arrays
+    let flexionImp = isNaN(flexionAngle) ? 0 : findImpairment(flexionAngle, SHOULDERFlexionExtensionData, 'flexion');
+    let extensionImp = isNaN(extensionAngle) ? 0 : findImpairment(extensionAngle, SHOULDERFlexionExtensionData, 'extension');
+    let flexextAnkylosisImp = isNaN(flexextAnkylosisAngle) ? 0 : findImpairment(flexextAnkylosisAngle, SHOULDERFlexionExtensionData, 'ankylosis');
+    let abductionImp = isNaN(abductionAngle) ? 0 : findImpairment(abductionAngle, SHOULDERAbductionAdductionData, 'abduction');
+    let adductionImp = isNaN(adductionAngle) ? 0 : findImpairment(adductionAngle, SHOULDERAbductionAdductionData, 'adduction');
+    let abdaddAnkylosisImp = isNaN(abdaddAnkylosisAngle) ? 0 : findImpairment(abdaddAnkylosisAngle, SHOULDERAbductionAdductionData, 'ankylosis');
+    let intRotImp = isNaN(intRotAngle) ? 0 : findImpairment(intRotAngle, SHOULDERInternalExternalRotationData, 'internalRotation');
+    let extRotImp = isNaN(extRotAngle) ? 0 : findImpairment(extRotAngle, SHOULDERInternalExternalRotationData, 'externalRotation');
+    let rotationAnkylosisImp = isNaN(rotationAnkylosisAngle) ? 0 : findImpairment(rotationAnkylosisAngle, SHOULDERInternalExternalRotationData, 'ankylosis');
+
+    // Update impairment fields in the HTML
+    document.getElementById('shoulder-flexion-imp').textContent = flexionImp;
+    document.getElementById('shoulder-extension-imp').textContent = extensionImp;
+    document.getElementById('shoulder-flexext-ankylosis-imp').textContent = flexextAnkylosisImp;
+    document.getElementById('shoulder-abduction-imp').textContent = abductionImp;
+    document.getElementById('shoulder-adduction-imp').textContent = adductionImp;
+    document.getElementById('shoulder-abdadd-ankylosis-imp').textContent = abdaddAnkylosisImp;
+    document.getElementById('shoulder-introt-imp').textContent = intRotImp;
+    document.getElementById('shoulder-extrot-imp').textContent = extRotImp;
+    document.getElementById('shoulder-rotation-ankylosis-imp').textContent = rotationAnkylosisImp;
+
+    // Calculate and update subtotals
+    let flexextImp = Math.max(flexionImp + extensionImp, flexextAnkylosisImp);
+    let abdaddImp = Math.max(abductionImp + adductionImp, abdaddAnkylosisImp);
+    let rotationImp = Math.max(intRotImp + extRotImp, rotationAnkylosisImp);
+
+    document.getElementById('shoulder-flexext-imp').textContent = flexextImp;
+    document.getElementById('shoulder-abdadd-imp').textContent = abdaddImp;
+    document.getElementById('shoulder-rotation-imp').textContent = rotationImp;
+
+    // Calculate total shoulder impairment
+    let impairments = [
+        { value: flexextImp, name: 'flexext' },
+        { value: abdaddImp, name: 'abdadd' },
+        { value: rotationImp, name: 'rotation' }
+    ].filter(imp => imp.value > 0);
+
+    let totalImp = impairments.reduce((sum, imp) => sum + imp.value, 0);
+    let wpi = Math.round(totalImp * 0.6);
+
+    // Display total with addition when two or more impairments are non-zero
+    let totalText = '';
+    if (impairments.length >= 2) {
+        totalText = impairments.map(imp => imp.value).join(' + ') + ' = ' + totalImp + ' UE = ' + wpi + ' WPI';
+    } else {
+        totalText = totalImp + ' UE = ' + wpi + ' WPI';
+    }
+    document.getElementById('shoulder-total-imp').textContent = totalText;
 }
 
-// Add event listeners for shoulder ROM inputs
-const shoulderInputs = ['flexion', 'extension', 'abduction', 'adduction', 'internal-rotation', 'external-rotation', 'ankylosis-fe', 'ankylosis-aa', 'ankylosis-ie'];
-shoulderInputs.forEach(input => {
-    document.getElementById(`shoulder-${input}`).addEventListener('input', calculateShoulderROM);
+// Event listeners for all shoulder input fields
+const shoulderInputFields = document.querySelectorAll('input[type="number"][id^="shoulder"]');
+shoulderInputFields.forEach(input => {
+    input.addEventListener('input', updateShoulderImpairment);
+});
+
+// Clear All button functionality
+document.getElementById('clearAllButton').addEventListener('click', () => {
+    shoulderInputFields.forEach(input => {
+        input.value = '';
+    });
+
+    const shoulderImpSpans = document.querySelectorAll('td[id^="shoulder"][id$="-imp"]');
+    shoulderImpSpans.forEach(span => {
+        span.textContent = '0';
+    });
+
+    document.getElementById('shoulder-total-imp').textContent = '0 UE = 0 WPI';
 });
     
 });
