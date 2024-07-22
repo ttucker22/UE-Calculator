@@ -1009,12 +1009,12 @@ function findImpairment(angle, dataArray, angleField) {
 
 function updateShoulderImpairment() {
     const movements = [
-        { name: 'flexion', dataArray: SHOULDERFlexionExtensionData },
-        { name: 'extension', dataArray: SHOULDERFlexionExtensionData },
-        { name: 'abduction', dataArray: SHOULDERAbductionAdductionData },
-        { name: 'adduction', dataArray: SHOULDERAbductionAdductionData },
-        { name: 'internal-rotation', dataArray: SHOULDERInternalExternalRotationData, field: 'internalRotation' },
-        { name: 'external-rotation', dataArray: SHOULDERInternalExternalRotationData, field: 'externalRotation' }
+        { name: 'flexion', dataArray: SHOULDERFlexionExtensionData, group: 'flexext' },
+        { name: 'extension', dataArray: SHOULDERFlexionExtensionData, group: 'flexext' },
+        { name: 'abduction', dataArray: SHOULDERAbductionAdductionData, group: 'abdadd' },
+        { name: 'adduction', dataArray: SHOULDERAbductionAdductionData, group: 'abdadd' },
+        { name: 'internal-rotation', dataArray: SHOULDERInternalExternalRotationData, field: 'internalRotation', group: 'rotation' },
+        { name: 'external-rotation', dataArray: SHOULDERInternalExternalRotationData, field: 'externalRotation', group: 'rotation' }
     ];
 
     let impairments = {
@@ -1031,14 +1031,7 @@ function updateShoulderImpairment() {
         if (angle !== null) {
             const imp = findImpairment(angle, movement.dataArray, movement.field || movement.name);
             impOutput.textContent = imp;
-
-            if (movement.name.includes('flexion') || movement.name.includes('extension')) {
-                impairments.flexext.normal += imp;
-            } else if (movement.name.includes('abduction') || movement.name.includes('adduction')) {
-                impairments.abdadd.normal += imp;
-            } else {
-                impairments.rotation.normal += imp;
-            }
+            impairments[movement.group].normal += imp;
         } else {
             impOutput.textContent = '';
         }
@@ -1063,13 +1056,14 @@ function updateShoulderImpairment() {
     });
 
     // Calculate and update subtotals
+    let totalImp = 0;
     ['flexext', 'abdadd', 'rotation'].forEach(type => {
         const subtotal = Math.max(impairments[type].normal, impairments[type].ankylosis);
         document.getElementById(`shoulder-${type === 'flexext' ? 'fe' : type}-imp`).textContent = subtotal;
+        totalImp += subtotal;
     });
 
     // Calculate total shoulder impairment
-    const totalImp = Object.values(impairments).reduce((sum, imp) => sum + Math.max(imp.normal, imp.ankylosis), 0);
     const wpi = Math.round(totalImp * 0.6);
 
     document.getElementById('shoulder-rom-total').textContent = totalImp;
